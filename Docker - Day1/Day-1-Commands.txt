@@ -1,0 +1,86 @@
+Step 1:
+-------------------------
+
+dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+
+
+Step 2:
+-----------------
+
+vi /etc/yum.repos.d/docker-ce.repo  
+
+
+From:
+[docker-ce-stable]
+name=Docker CE Stable - $basearch
+baseurl=https://download.docker.com/linux/centos/$releasever/$basearch/stable
+ 
+TO:
+[docker-ce-stable]
+name=Docker CE Stable - $basearch
+baseurl=https://download.docker.com/linux/centos/8/$basearch/stable
+
+Step 3:
+---------------------
+dnf list docker-ce --showduplicates | sort -r
+dnf install docker-ce --setopt=best=0
+
+Step 4:
+----------------------
+systemctl start docker
+
+systemctl status docker
+
+NOTE:
+If you see this error: Failed to start docker.service: Unit not found.
+
+Do the below:
+- systemctl daemon-reload
+- systemctl start docker
+- systemctl status docker
+
+Step 5:
+-----------------------
+systemctl enable --now docker
+
+systemctl is-active docker
+
+systemctl is-enabled docker
+
+
+NOTE:
+------
+
+Installation Commands:
+**********************
+If dnf is not already installed:
+
+yum install epel-release -y
+
+yum install dnf -y
+
+dnf install 'dnf-command(config-manager)'
+
+##########################################
+
+Docker pull image and run container commands:
+*********************************************
+
+ubuntu:
+------
+ubuntu:latest
+
+docker pull ubuntu:latest
+
+Docker run command														docker ps  (check running containers)
+-------------------														-------------------------------------
+
+docker run -d ubuntu /bin/bash												0 conteriners				
+or
+docker run -d ubuntu /bin/bash sleep 100				==> 				1 container (for 100 seconds) 
+or
+docker run -it ubuntu /bin/bash	
+	>
+	
+	ctrl+c -> quit and exit container					==>					0 container
+	ctrl+p+q -> quit									==>					1 container
