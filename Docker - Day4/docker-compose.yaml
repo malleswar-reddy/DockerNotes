@@ -1,0 +1,42 @@
+version: "3.7"
+
+services:
+  ubuntuExt:
+    image: ubuntu-ext
+    build:
+      context: ./ubuntu-ext/.
+
+  pydemo:
+    image: ctvenkat/pydemo-compose
+    build:
+      context: ./pydemo/.
+      dockerfile: Dockerfile
+      args:
+        buildVersion: 1
+    ports:
+       - ":5002"
+    volumes:
+      - contvol:/vol
+    environment:
+      - NODE_ENV=dev
+      - APP_Version=2
+    deploy:
+      replicas: 2
+
+  apache2:
+    container_name: apache2
+    image: ubuntu/apache2:2.4-22.04_beta
+    ports:
+      - "8080:80"
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  ubuntuBase:
+    container_name: ubuntu
+    image: ubuntu:latest
+
+
+volumes:
+  contvol:
+    external: true

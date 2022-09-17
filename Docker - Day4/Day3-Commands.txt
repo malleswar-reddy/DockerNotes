@@ -1,0 +1,206 @@
+Docker file - ENTRYPOINT and CMD:
+---------------------------------
+1. Used to execute command, shell script, app when the container started.
+2. Use ENTRYPOINT or CMD or both.
+3. In case of using both, ENTRYPOINT will override CMD.
+4. Syntax are same of ENTRYPOINT or CMD:
+# Exec Form
+ENTRYPOINT ["echo", "Hello ", "Entry-ExecForm"]
+
+# Shell Form
+ENTRYPOINT echo "Hello Entry-ShellForm"
+
+# Exec Form
+CMD ["echo", "Hellow Exec", "Welcome"]
+
+# Shell Form
+CMD echo "Hellow Shell Welcome"
+
+5. Only 1 ENTRYPOINT or CMD can be used in dockerfile.
+
+
+
+
+********************************************************88
+
+Syntax:
+docker run –p <local host port >:<docker container port> <image name>
+
+1. Run apache2 docker image which is based on ubuntu
+
+Reference: https://hub.docker.com/r/ubuntu/apache2
+
+docker run -d --name apache2-container -e TZ=UTC -p 8080:80 ubuntu/apache2
+
+mkdir -p /etc/apache2
+
+docker run -d --name apache2-container -e TZ=UTC -p 8080:80 -v /etc/apache2/apache2.conf:/etc/apache2/apache2.conf ubuntu/apache2
+
+hostname -I (to get the private IP)
+
+From inside the container:
+curl -v http://localhost:80 or curl -v http://<container_private_ip>://80
+
+From inside the VM host (linux/windows):
+----------------------------------------
+curl -v http://localhost:8080 or curl -v http://<private_ip>://8080
+
+From your local or anyother machine:
+-------------------------
+http://<private_ip>:8080/
+
+2. Run python micro service app
+
+Reference: https://hub.docker.com/repository/docker/ctvenkat/pydemo
+
+docker run -d --name=pydemo2 -p 8083:5002 ctvenkat/pydemo:latest
+
+From inside the host:
+curl -v http://localhost:8081/products or curl -v http://10.33.65.14://8082/products
+
+From outside the host:
+http://10.33.65.14:8081/products
+
+-----------------------------------------
+
+docker volume –help
+docker volume create contvol		==> In linux: /var/lib/docker/volumes/contvol
+docker volume ls
+docker volume inspect contvol
+docker volume create pyvolExt
+docker volume rm pyvolExt
+docker volume prune
+
+-----------------------------------------
+
+docker run –dit --name ubuntuvoltest --mount source=contvol,target=/vol ubuntu:latest
+docker volume ls
+docker exec –it ubuntuvoltest /bin/bash
+cd /vol
+echo “volume test data” > /vol/ubuntu-volume-test-data.txt
+cat /vol/ubuntu-volume-test-data.txt
+docker volume inspect contvol
+cd /var/lib/docker/volumes/contvol/_data
+docker container stop ubuntuvoltest
+docker container rm ubuntuvoltest
+docker container run –dit --name alphinevoltest \
+    --mount source=contvol,tartget=/app alphine:latest
+  or
+   docker container run –dit --name alphinevoltest \
+   --mount source=contvol,target=/app,readonly alpine:latest
+docker  volume rm contvol
+docker exec –it alphinevoltest sh
+docker container rm alphinevoltest
+docker volume rm contvol
+
+--------------------------------------------
+
+DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+mkdir -p $DOCKER_CONFIG/cli-plugins
+curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
+chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+docker compose version
+command history
+
+-------------------------
+version: "3.7"
+
+services:
+  pydemo:
+    container_name: ctvenkat/pydemo
+    image: pydemo
+    build:
+      context: ./pydemo/.
+      dockerfile: Dockerfile
+	  args:
+	    buildVersion: 1
+  apache2:
+    container_name: apache2
+    image: ubuntu/apache2:2.4-22.04_beta
+
+
+-----------------------------------------
+
+version: "3.7"
+
+services:
+  pydemo:
+    container_name: ctvenkat/pydemo
+    image: pydemo
+    build:
+      context: ./pydemo/.
+      dockerfile: Dockerfile
+	  args:
+	    buildVersion: 1
+	ports:
+      - "8081:5002"
+	volumes:
+	  - contvol:/vol
+	depands_on:
+	  - apache2
+
+  apache2:
+    container_name: apache2
+    image: ubuntu/apache2:2.4-22.04_beta
+	ports:
+      - "8080:80"
+	volumes:
+	  - contvol:/vol
+
+volumes:
+  contvol:
+    external: true
+
+-------------------------------------------------
+
+docker run -dit --env NODE_ENV=production ubuntu:latest
+
+
+--------------------------------------------------
+
+services:
+  pydemo:
+    image: pydemo
+    build:
+      context: ./pydemo/.
+      dockerfile: Dockerfile
+	  args:
+	    buildVersion: 1
+	ports:
+      - "5002"
+	volumes:
+	  - contvol:/vol
+	depands_on:
+	  - apache2
+
+  apache2:
+    container_name: apache2
+    image: ubuntu/apache2:2.4-22.04_beta
+	ports:
+      - "8080:80"
+	volumes:
+	  - contvol:/vol
+    deploy:
+      replicas: 2
+        restart_policy:
+		  condition: always
+
+volumes:
+  contvol:
+    external: true
+	
+----------------------------------------------------
+
+docker compose build
+
+docker compose up
+
+docker compose ps
+
+docker compose down
+
+docker compose stop
+
+docker compose start
+
+docker compose rm
