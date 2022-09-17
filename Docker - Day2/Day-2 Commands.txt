@@ -1,0 +1,89 @@
+Reference:
+----------
+https://dockerlabs.collabnix.com/docker/cheatsheet/
+
+Images:
+********
+
+docker image search (or) docker search
+docker image pull (or) docker pull
+docker image ls (or) docker images
+docker image history 
+docker image tag			==> docker image tage <image_id> <tag_name>
+docker image save			==> docker image save <imge_id> -o <file_name>.tar
+docker image load			==> docker image load -i <file_name>.tar
+docker image inspect
+docker image rm (or) docker rmi
+
+Container
+***********
+---------------------------------------------------
+interactive mode:
+-----------------
+docker run -it --name vc-ubuntu ubuntu:latest
+root#<continer_id>$
+to quit --> ctrl+p+q
+
+docker ps
+
+detached and interactive mode:
+------------------------------
+docker run -dit --name vc-ubuntu-2 ubuntu:latest
+
+docker mode:
+-----------
+docker run -d --name vc-ubuntu-3 ubuntu:latest
+
+
+docker exec vc-ubuntu-2 /bin/bash
+
+Flow:
+-----
+1. Docker create
+2. Docker start
+3. Docker stop
+4. Docler rm
+
+or
+
+1. Docker run
+2. Docker stop
+3. Docker rm
+
+docker run ==> docker create + docker start
+
+
+----------------------------------------------
+
+docker stats
+
+--------------------------------------------
+
+Custom Image:
+--------------
+ubuntu:latest -> not having vim
+
+ubuntu:latest + vim ==> new Image
+
+docker pull ubuntu
+docker run --name ubuntu-base -it ubuntu
+docker ps
+docker exec -it ubuntu-base /bin/bash
+==>let’s install the few software in the running container
+	apt-get update -y 
+	apt-get install  vim -y
+	exit
+docker commit ubuntu-base  ubuntu-template
+docker images
+docker tag <image_id> <repo_id>/<image_name>:<tag> 
+Docker push <repo_id>/<image_name>:<tag>
+
+
+Copy file from outside to inside container:
+-------------------------------------------
+touch testcpfile.txt
+docker ps
+docker cp ./testcpfile.txt 4164bafdff49:/tmp/.
+docker exec -it 4164bafdff49 /bin/bash
+or
+docker exec -it 4164bafdff49 ls /tmp/
